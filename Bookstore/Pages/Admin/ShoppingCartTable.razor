@@ -1,0 +1,59 @@
+﻿<h3>Shopping Cart Table</h3>
+<table class="table table-sm table-striped table bordered">
+    <thead>
+        <tr>
+            <th colspan="5" class="text-center">@TableTitle</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @if (Shoppings?.Count()>0)
+            {
+                @foreach (Shopping s in Shoppings)
+                {
+                    <tr>
+                        @* Use typography, "mark" and "abbr". Mark element is to highlight the text and abbr element is to underdot the text*@
+                        <td><mark>@s.Name</mark></td>
+                        <td><abbr title="attribute">@s.Zip</abbr></td>
+                        <td><mark>Books</mark></td>
+                        <td><mark>Quantity</mark></td>
+
+                        <td>
+                            <button class="btn btn-sm btn-danger" @onclick="@(x => ShoppingCartSelected.InvokeAsync(s.ShoppingId))">
+                                @ButtonLabel
+                            </button>
+                        </td>
+                    </tr>
+
+                    @foreach (BasketLineItem bli in s.Lines)
+                    {
+                        <tr>
+                            <td colspan="2"></td>
+                            <td>@bli.Books.Title</td>
+                            <td>@bli.Quantity</td>
+                        </tr>
+                    }
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="5" class="text-center"></td>
+                </tr>
+            }
+    </tbody>
+</table>
+@code {
+    [Parameter]
+    public string TableTitle { get; set; } = "Shoppings";
+
+    [Parameter]
+    public IEnumerable<Shopping> Shoppings { get; set; }
+
+    [Parameter]
+    public string ButtonLabel { get; set; } = "Ship";
+
+    [Parameter]
+    public EventCallback<int> ShoppingCartSelected { get; set; }
+
+}

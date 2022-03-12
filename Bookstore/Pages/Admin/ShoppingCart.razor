@@ -1,0 +1,40 @@
+﻿@page "/admin/shoppingcart"
+@inherits OwningComponentBase<IShoppingRepository>
+
+<ShoppingCartTable TableTitle="Unshipped" Shoppings="UnshippedShoppingCart"
+                   ButtonLabel="Ship" ShoppingCartSelected="ShipShoppingCart"></ShoppingCartTable>
+
+<ShoppingCartTable TableTitle="Shipped" Shoppings="ShippedShoppingCart"
+                   ButtonLabel="Reset" ShoppingCartSelected="ResetShoppingCart"></ShoppingCartTable>
+
+<button class="btn btn-info" @onclick="@(x => UpdateData())">Refresh Data</button>
+
+@code {
+    public IShoppingRepository repo => Service;
+
+    public IEnumerable<Shopping> AllShoppings { get; set; }
+    public IEnumerable<Shopping> UnshippedShoppingCart { get; set; }
+    public IEnumerable<Shopping> ShippedShoppingCart { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        await UpdateData();
+    }
+
+    public async Task UpdateData()
+    {
+        AllShoppings = await repo.Shoppings.ToListAsync();
+        UnshippedShoppingCart = AllShoppings.Where(x => !x.ShoppingCartReceived);
+        ShippedShoppingCart = AllShoppings.Where(x => x.ShoppingCartReceived);
+    }
+
+    public void ShipShoppingCart(int id) => UpdateShoppingCart(id, true);
+    public void ResetShoppingCart(int id) => UpdateShoppingCart(id, false);
+
+    private void UpdateShoppingCart(int id, bool shipValue)
+    {
+        Shopping s = repo.Shoppings.FirstOrDefault(x => x.ShoppingId == id);
+        s.ShoppingCartReceived = shipValue;
+        repo.SaveShopping(s);
+    }
+}
